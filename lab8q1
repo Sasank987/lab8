@@ -1,11 +1,13 @@
+Certainly! Here's the revised code with alternative variable names:
+
+```python
 import numpy as np
 from collections import Counter
 import math
- 
+import os
+
 class DecisionTree:
-    def __init__(self):
-        pass
-    def entropy(self, labels):
+    def calculate_entropy(self, labels):
         label_counts = Counter(labels)
         num_labels = len(labels)
         entropy = 0
@@ -13,43 +15,48 @@ class DecisionTree:
             prob = count / num_labels
             entropy -= prob * math.log(prob, 2)
         return entropy
-    def information_gain(self, data, labels, feature_idx):
+    
+    def calculate_information_gain(self, data, labels, feature_index):
         # Calculate parent entropy
-        parent_entropy = self.entropy(labels)
+        parent_entropy = self.calculate_entropy(labels)
         # Calculate weighted sum of child entropies
-        unique_values = np.unique(data[:, feature_idx])
+        unique_values = np.unique(data[:, feature_index])
         children_entropy = 0
         for value in unique_values:
-            child_indices = np.where(data[:, feature_idx] == value)[0]
+            child_indices = np.where(data[:, feature_index] == value)[0]
             child_labels = labels[child_indices]
-            children_entropy += (len(child_labels) / len(labels)) * self.entropy(child_labels)
+            children_entropy += (len(child_labels) / len(labels)) * self.calculate_entropy(child_labels)
         # Calculate information gain
         information_gain = parent_entropy - children_entropy
         return information_gain
-    def find_root_node(self, data, labels, feature_names):
+    
+    def find_optimal_split(self, data, labels, feature_names):
         num_features = data.shape[1]
-        best_feature_idx = None
+        best_feature_index = None
         max_information_gain = -float('inf')
-        for feature_idx in range(num_features):
-            information_gain = self.information_gain(data, labels, feature_idx)
+        for feature_index in range(num_features):
+            information_gain = self.calculate_information_gain(data, labels, feature_index)
             if information_gain > max_information_gain:
                 max_information_gain = information_gain
-                best_feature_idx = feature_idx
-        return best_feature_idx, feature_names[best_feature_idx]
+                best_feature_index = feature_index
+        return best_feature_index, feature_names[best_feature_index]
 
 # Example usage:
 def load_data(dataset_path):
+    if not os.path.isfile(dataset_path):
+        raise FileNotFoundError(f"File '{dataset_path}' not found.")
     data = np.genfromtxt(dataset_path, delimiter=',', dtype=str)
     features = data[0, :-1]
     labels = data[1:, -1]
     data = data[1:, :-1]
     return data, labels, features
  
-dataset_path = r"C:\Users\heman\OneDrive\Documents\SEM_4\ML\Lab\8\Unemployment_in_India.csv"  
+dataset_path = ""A:\sem4\ML\Unemployment_in_India.csv"" 
 data, labels, feature_names = load_data(dataset_path)
  
 dt = DecisionTree()
-root_node_idx, root_node_name = dt.find_root_node(data, labels, feature_names)
-print("Root node of the Decision Tree:")
-print("Feature index:", root_node_idx)
-print("Feature name:", root_node_name)
+optimal_split_index, optimal_split_feature = dt.find_optimal_split(data, labels, feature_names)
+print("Optimal split for the Decision Tree:")
+print("Feature index:", optimal_split_index)
+print("Feature name:", optimal_split_feature)
+
